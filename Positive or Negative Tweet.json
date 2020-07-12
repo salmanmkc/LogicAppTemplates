@@ -1,0 +1,150 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Condition": {
+                "actions": {
+                    "Send_an_email_(V2)_2": {
+                        "inputs": {
+                            "body": {
+                                "Body": "<p>A negative tweet was posted by @{triggerBody()?['TweetedBy']} about you saying @{triggerBody()?['OriginalTweet']?['TweetText']}<br>\n<br>\nThis template was created by SalmanMKC <br>\n</p>",
+                                "Subject": "Negative tweet about you with @{triggerBody()?['UserDetails']?['FavouritesCount']} likes",
+                                "To": "13schishti@gmail.com"
+                            },
+                            "host": {
+                                "connection": {
+                                    "name": "@parameters('$connections')['outlook']['connectionId']"
+                                }
+                            },
+                            "method": "post",
+                            "path": "/v2/Mail"
+                        },
+                        "runAfter": {},
+                        "type": "ApiConnection"
+                    }
+                },
+                "else": {
+                    "actions": {
+                        "Condition_2": {
+                            "actions": {
+                                "Send_an_email_(V2)": {
+                                    "inputs": {
+                                        "body": {
+                                            "Body": "<p>Positive tweet about you by @{triggerBody()?['TweetedBy']} saying @{triggerBody()?['TweetText']}<br>\n<br>\nThis template was created by <a href=\"https://bit.ly/salmanmkc\">SalmanMKC</a>&nbsp;</p>",
+                                            "Subject": "Positive tweet about you with @{triggerBody()?['UserDetails']?['FavouritesCount']}",
+                                            "To": "EMAIL"
+                                        },
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['outlook']['connectionId']"
+                                            }
+                                        },
+                                        "method": "post",
+                                        "path": "/v2/Mail"
+                                    },
+                                    "runAfter": {},
+                                    "type": "ApiConnection"
+                                }
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "greaterOrEquals": [
+                                            "@body('Detect_Sentiment')?['score']",
+                                            0.7
+                                        ]
+                                    }
+                                ]
+                            },
+                            "runAfter": {},
+                            "type": "If"
+                        }
+                    }
+                },
+                "expression": {
+                    "and": [
+                        {
+                            "lessOrEquals": [
+                                "@body('Detect_Sentiment')?['score']",
+                                0.3
+                            ]
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Detect_Sentiment": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "If"
+            },
+            "Detect_Sentiment": {
+                "inputs": {
+                    "body": {
+                        "text": "@triggerBody()?['TweetText']"
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['cognitiveservicestextanalytics']['connectionId']"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/text/analytics/v2.1/sentiment"
+                },
+                "runAfter": {},
+                "type": "ApiConnection"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "When_a_new_tweet_is_posted": {
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['twitter']['connectionId']"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/onnewtweet",
+                    "queries": {
+                        "searchQuery": "SEARCHTERM"
+                    }
+                },
+                "recurrence": {
+                    "frequency": "Minute",
+                    "interval": 3
+                },
+                "splitOn": "@triggerBody()?['value']",
+                "type": "ApiConnection"
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "value": {
+                "cognitiveservicestextanalytics": {
+                    "connectionId": "/subscriptions/de06c14d-f3aa-4f24-bd91-9929fea8a0f6/resourceGroups/logicapp-tmpl-grp/providers/Microsoft.Web/connections/cognitiveservicestextanalytics",
+                    "connectionName": "cognitiveservicestextanalytics",
+                    "id": "/subscriptions/de06c14d-f3aa-4f24-bd91-9929fea8a0f6/providers/Microsoft.Web/locations/uksouth/managedApis/cognitiveservicestextanalytics"
+                },
+                "outlook": {
+                    "connectionId": "/subscriptions/de06c14d-f3aa-4f24-bd91-9929fea8a0f6/resourceGroups/logicapp-tmpl-grp/providers/Microsoft.Web/connections/outlook",
+                    "connectionName": "outlook",
+                    "id": "/subscriptions/de06c14d-f3aa-4f24-bd91-9929fea8a0f6/providers/Microsoft.Web/locations/uksouth/managedApis/outlook"
+                },
+                "twitter": {
+                    "connectionId": "/subscriptions/de06c14d-f3aa-4f24-bd91-9929fea8a0f6/resourceGroups/logicapp-tmpl-grp/providers/Microsoft.Web/connections/twitter",
+                    "connectionName": "twitter",
+                    "id": "/subscriptions/de06c14d-f3aa-4f24-bd91-9929fea8a0f6/providers/Microsoft.Web/locations/uksouth/managedApis/twitter"
+                }
+            }
+        }
+    }
+}
