@@ -8,7 +8,7 @@
                         "inputs": {
                             "body": {
                                 "Body": "<p>A negative tweet was posted by @{triggerBody()?['TweetedBy']} about you saying @{triggerBody()?['OriginalTweet']?['TweetText']}<br>\n<br>\nThis template was created by SalmanMKC <br>\n</p>",
-                                "Subject": "Negative tweet about you with @{triggerBody()?['UserDetails']?['FavouritesCount']} likes",
+                                "Subject": "Negative tweet about you",
                                 "To": "13schishti@gmail.com"
                             },
                             "host": {
@@ -31,7 +31,7 @@
                                     "inputs": {
                                         "body": {
                                             "Body": "<p>Positive tweet about you by @{triggerBody()?['TweetedBy']} saying @{triggerBody()?['TweetText']}<br>\n<br>\nThis template was created by <a href=\"https://bit.ly/salmanmkc\">SalmanMKC</a>&nbsp;</p>",
-                                            "Subject": "Positive tweet about you with @{triggerBody()?['UserDetails']?['FavouritesCount']}",
+                                            "Subject": "Positive tweet about you",
                                             "To": "EMAIL"
                                         },
                                         "host": {
@@ -114,7 +114,7 @@
                     "method": "get",
                     "path": "/onnewtweet",
                     "queries": {
-                        "searchQuery": "SEARCHTERM"
+                        "searchQuery": "SalmanMKC"
                     }
                 },
                 "recurrence": {
